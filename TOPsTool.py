@@ -207,14 +207,31 @@ def query_and_parse(compList : list,
     mixString = format_TOPS_string(compList)
     X = compList[0][1]
     Y = compList[1][1]
-    Z = sum([x[1] for x in compList[2:]])
+    Z = 1 - X - Y
+
+    assert Z > 0.0
+
+    Zsum = sum([x[1] for x in compList[2:]])
+
+    if Zsum > 0.0:
+        norm = Z/Zsum
+
+
+        item = [(compList[2][0],compList[2][1]*norm)]
+        if len(compList) > 3:
+            for ele in compList[3:]:
+                item = item + [(ele[0],ele[1]*norm)]
+
+
+        mixString = format_TOPS_string(item)
+
+
+
     Xfmt = (int(X*1000) if int(X*1000) > 0 else 0)
     Yfmt = (int(Y*1000) if int(Y*1000) > 0 else 0)
     Zfmt = (int(Z*1000) if int(Z*1000) > 0 else 0)
     mixName = f"X{Xfmt} Y{Yfmt} Z{Zfmt}"
-    continuity = sum([x[1] for x in compList])
 
-    assert 1 - continuity <= 1e-3
 
     tableHTML = TOPS_query(mixString, mixName, nAttempts, opacityType=opacityType, SinglePoint=SinglePoint, den=den, tem=tem)
 
