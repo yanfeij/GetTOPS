@@ -42,6 +42,7 @@ def call_opdata(aMap: str,
                 ng: str = '50',
                 SinglePoint: bool=False,
                 outfilename: str = None,
+                input_mass_frac: bool = False,
                 den: str = '1',
                 tem: str = '1'):
     """
@@ -92,7 +93,7 @@ def call_opdata(aMap: str,
     opacities. If you would like to parse the output of the multi-group
     opacities you will need to do so yourself.
     """
-    parsed = open_and_parse(aTable)
+    parsed = open_and_parse(aTable,input_mass_frac)
     pContents = parse_abundance_map(aMap)
     compList = list()
     for comp in pContents:
@@ -445,7 +446,7 @@ def submit_TOPS_form_single_T_rho(
 
 
 
-def open_and_parse(path):
+def open_and_parse(path,input_mass_frac):
     """
     Open and parse the contents of a chemical composition file
 
@@ -480,8 +481,10 @@ def open_and_parse(path):
                     file format definition provided in the module
                     documentation. These are all floats.
     """
+
     contents = open_chm_file(path)
-    parsed = parse(contents)
+    parsed = parse(contents,input_mass_frac)
+
     return parsed
 
 
@@ -524,7 +527,7 @@ def parse_abundance_map(path : str) -> np.ndarray:
 # In[ ]:
 
 
-def parse(contents : list) -> dict:
+def parse(contents : list, input_mass_frac: bool) -> dict:
     """
     Parse chem file in the format described in the module documentation.
 
@@ -707,13 +710,19 @@ def parse(contents : list) -> dict:
                 extracted['AbundanceRatio'][targetElement] = element
             else:
                 element = float(element)
-                extracted['RelativeAbundance'][targetElement[0]] = {"a": element,
+                if input_mass_frac is False:
+                    extracted['RelativeAbundance'][targetElement[0]] = {"a": element,
                                                "m_f": a_to_mfrac(element,
                                                                  targetElement[1],
                                                                  extracted['AbundanceRatio']['X']
                                                                 )
                                               }
+                else:
+                    extracted['RelativeAbundance'][targetElement[0]] = {"a": element,
+                                               "m_f": element}
     return extracted
+
+
 
 
 # In[ ]:
