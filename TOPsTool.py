@@ -210,7 +210,7 @@ def query_and_parse(compList : list,
     Y = compList[1][1]
     Z = 1 - X - Y
 
-    assert Z > 0.0
+    assert Z >= 0.0
 
     Zsum = sum([x[1] for x in compList[2:]])
 
