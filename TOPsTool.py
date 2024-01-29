@@ -206,6 +206,7 @@ def query_and_parse(compList : list,
         raise ValueError(f"opacityType must be 'plank' or 'multi' not {opacityType}")
 
     mixString = format_TOPS_string(compList)
+
     X = compList[0][1]
     Y = compList[1][1]
     Z = 1 - X - Y
@@ -218,7 +219,7 @@ def query_and_parse(compList : list,
         norm = Z/Zsum
 
 
-        item = [(compList[2][0],compList[2][1]*norm)]
+        item = [(compList[0][0],compList[0][1]),(compList[1][0],compList[1][1]),(compList[2][0],compList[2][1]*norm)]
         if len(compList) > 3:
             for ele in compList[3:]:
                 item = item + [(ele[0],ele[1]*norm)]
@@ -228,12 +229,13 @@ def query_and_parse(compList : list,
 
 
 
+
     Xfmt = (int(X*1000) if int(X*1000) > 0 else 0)
     Yfmt = (int(Y*1000) if int(Y*1000) > 0 else 0)
     Zfmt = (int(Z*1000) if int(Z*1000) > 0 else 0)
     mixName = f"X{Xfmt} Y{Yfmt} Z{Zfmt}"
 
-
+    print(mixString)
     tableHTML = TOPS_query(mixString, mixName, nAttempts, opacityType=opacityType, SinglePoint=SinglePoint, den=den, tem=tem)
 
     table = parse_table(tableHTML)
