@@ -484,8 +484,8 @@ def open_and_parse(path,input_mass_frac):
                     documentation. These are all floats.
     """
 
-    contents = open_chm_file(path)
-    parsed = parse(contents,input_mass_frac)
+    [contents,label] = open_chm_file(path)
+    parsed = parse(contents,label,input_mass_frac)
 
     return parsed
 
@@ -529,7 +529,7 @@ def parse_abundance_map(path : str) -> np.ndarray:
 # In[ ]:
 
 
-def parse(contents : list, input_mass_frac: bool) -> dict:
+def parse(contents : list, label: list, input_mass_frac: bool) -> dict:
     """
     Parse chem file in the format described in the module documentation.
 
@@ -704,6 +704,7 @@ def parse(contents : list, input_mass_frac: bool) -> dict:
             ]
         ]
     extracted = {'AbundanceRatio': dict(), 'RelativeAbundance': dict()}
+
     for rowID, (row,target) in enumerate(zip(contents, contentMap)):
         for colID, (element, targetElement) in enumerate(zip(row, target)):
             if rowID == 0:
@@ -711,17 +712,23 @@ def parse(contents : list, input_mass_frac: bool) -> dict:
                     element = float(element)
                 extracted['AbundanceRatio'][targetElement] = element
             else:
-                element = float(element)
                 if input_mass_frac is False:
+                    element = float(element)
                     extracted['RelativeAbundance'][targetElement[0]] = {"a": element,
                                                "m_f": a_to_mfrac(element,
                                                                  targetElement[1],
                                                                  extracted['AbundanceRatio']['X']
                                                                 )
                                               }
-                else:
-                    extracted['RelativeAbundance'][targetElement[0]] = {"a": element,
-                                               "m_f": element}
+
+    if input_mass_frac is True:
+        for value, line in zip(contents, label):
+            if line[0] != 'STD':
+                for ratio, ele in zip(value,line):
+                    ratio = float(ratio)
+                    extracted['RelativeAbundance'][ele]={"a": ratio, "m_f": ratio}
+
+
     return extracted
 
 
@@ -750,8 +757,17 @@ def open_chm_file(path):
     with open(path, 'r') as f:
         contents = filter(lambda x: x != '', f.read().split('\n'))
         contents = filter(lambda x: x[0] != '#', contents)
+    with open(path, 'r') as f:
+        label = filter(lambda x: x != '', f.read().split('\n'))
+        label = filter(lambda x: x[0] == '#', label)
+
     contents = [re.split(' |,', x) for x in contents]
-    return contents
+    label = [re.split(' |,', x) for x in label]
+
+    for x in label:
+        x[0]=x[0].replace("#","")
+
+    return [contents,label]
 
 
 # In[ ]:
