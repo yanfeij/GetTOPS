@@ -235,7 +235,7 @@ def query_and_parse(compList : list,
     Zfmt = (int(Z*1000) if int(Z*1000) > 0 else 0)
     mixName = f"X{Xfmt} Y{Yfmt} Z{Zfmt}"
 
-    print(mixString)
+
     tableHTML = TOPS_query(mixString, mixName, nAttempts, opacityType=opacityType, SinglePoint=SinglePoint, den=den, tem=tem)
 
     table = parse_table(tableHTML)
