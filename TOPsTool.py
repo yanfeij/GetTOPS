@@ -5,6 +5,7 @@
 
 
 import mechanize
+import certifi
 from bs4 import BeautifulSoup
 import re
 from tqdm import tqdm
@@ -330,6 +331,9 @@ def submit_TOPS_form(
 
     """
     br = mechanize.Browser()
+    br.set_handle_robots(False)
+    br.set_ca_data(cafile=certifi.where())
+
     br.open(TOPS_URL)
     br.select_form(nr=0)
     if massFrac:
@@ -405,6 +409,9 @@ def submit_TOPS_form_single_T_rho(
 
     """
     br = mechanize.Browser()
+    br.set_handle_robots(False)
+    br.set_ca_data(cafile=certifi.where())
+
     br.open(TOPS_URL)
     br.select_form(nr=0)
     if massFrac:
